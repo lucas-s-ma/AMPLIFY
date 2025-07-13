@@ -209,6 +209,11 @@ def downstream(config, task_name):
         raise ValueError(
             f"Unsupported task: {task_name}. Please check your task name and data source."
         )
+    
+    ##########################################################
+    # this is added to run a small scale test on 1% of the training set
+    train_size = int(0.01 * len(all_data["train"]))  # 1% of the data
+    all_data["train"] = all_data["train"].select(range(train_size))
 
     all_data = all_data.rename_column("label", "labels")
     if task_name in ["Bo1015/fitness_prediction"]:
