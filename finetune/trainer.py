@@ -144,11 +144,11 @@ def train(config: DictConfig):
 
     """
 
-    prt_model_safe = config.prt_model_name.split("/")[-1]
+    prt_model_safe = config.prt_model_name.split("/")[-1] # extract the model name from the URL
     ref_model_safe = (
         config.reference_model.split("/")[1] if config.reference_model else "None"
     )
-    output_dir = os.path.join(
+    output_dir = os.path.join( # checkpoints are basically snapshots of good models-in-training
         "checkpoint",
         f"{prt_model_safe}_{ref_model_safe}_"
         f"{'_'.join(map(str, config.loss_weight))}_"
@@ -163,7 +163,7 @@ def train(config: DictConfig):
     best_ckpt_dir = os.path.join(output_dir, "best")
     os.makedirs(best_ckpt_dir, exist_ok=True)
 
-    deepspeed_plugin = DeepSpeedPlugin(
+    deepspeed_plugin = DeepSpeedPlugin( # makes training faster and cost less memory
         zero_stage=2,
         gradient_clipping=1.0,
         gradient_accumulation_steps=config.opt_interval,
@@ -190,7 +190,7 @@ def train(config: DictConfig):
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-        # configure wandb
+        # configure wandb - weights and biases
         wandb.init(
             project="structure-aware-plm",
             name=output_dir.split("/")[-1],
@@ -326,12 +326,12 @@ def train(config: DictConfig):
         size_average=False, reduce=False, ignore_index=-100
     )
 
-    param_groups = [
+    param_groups = [ # trunk and head decays with different rate
         {"params": model.trunk.parameters(), "lr": 1e-4},
         {"params": model.classifier.parameters(), "lr": 1e-3},
         {"params": model.cl_model.parameters(), "lr": 1e-3},
     ]
-    optimizer = torch.optim.AdamW(param_groups, betas=(0.9, 0.95), weight_decay=0.01)
+    optimizer = torch.optim.AdamW(param_groups, betas=(0.9, 0.95), weight_decay=0.01) 
 
     MASK_DENOMINATOR = constants.MEAN_MASK_SEQ_LEN * config.batch_size
     DENOMINATOR = constants.MEAN_SEQ_LEN * config.batch_size * config.ratio
@@ -421,7 +421,7 @@ def train(config: DictConfig):
         else:
             progress_bar = dataloader
 
-        for index, batch in enumerate(progress_bar):
+        for index, batch in enumerate(progress_bar): # still looping over batches, but with a fancy progress bar on the console.
             global_step += 1
             # load data
             seq_tokens = batch["seq_tokens"].to(torch.long)
