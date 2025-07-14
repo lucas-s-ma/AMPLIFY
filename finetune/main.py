@@ -64,8 +64,8 @@ def prepare_task_config(cfg: DictConfig, task_name: str) -> DictConfig:
 
     return cfg_copy
 
-##### THIS IS CHANGED FOR DOWNSTREAM FINETUNING TEST
-@hydra.main(version_base=None, config_path="config/experiments/", config_name="AMPLIFY_TEST.yaml")
+
+@hydra.main(version_base=None, config_path="config/", config_name="config.yaml")
 def pipeline(cfg: DictConfig) -> None:
     """
     Args:
